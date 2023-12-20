@@ -2,6 +2,12 @@ import tkinter as tk
 from tkinter import filedialog
 import fitz  # PyMuPDF
 from PIL import Image, ImageTk
+from database import create_connection, create_table, save_last_viewed_page, get_last_viewed_page
+
+database = "book_database.db"
+conn = create_connection(database)
+create_table(conn)
+
 
 class PDFViewer(tk.Tk):
     def __init__(self):
@@ -22,6 +28,9 @@ class PDFViewer(tk.Tk):
 
         next_button = tk.Button(self, text="Next", command=self.next_page)
         next_button.pack(side="right")
+        
+        self.bind("<Left>", self.prev_page)
+        self.bind("<Right>", self.next_page)
         
         # Zoom factor
         self.zoom_factor = 1.0
@@ -44,11 +53,11 @@ class PDFViewer(tk.Tk):
         self.total_pages = 0
 
     def open_pdf(self):
-        file_path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
-        if file_path:
-            self.pdf_document = fitz.open(file_path)
+        self.file_path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
+        if self.file_path:
+            self.pdf_document = fitz.open(self.file_path)
             self.total_pages = len(self.pdf_document)
-            self.current_page = 0
+            self.current_page = int(get_last_viewed_page(conn, self.file_path))
             self.display_page(self.current_page)
 
     def display_page(self, page_number):
@@ -63,25 +72,38 @@ class PDFViewer(tk.Tk):
         # Updating the title with page info
         self.title(f"PDF Viewer - Page {self.current_page + 1} of {self.total_pages}")
         
-    def prev_page(self):
+    def prev_page(self, event):
         if self.current_page > 0:
             self.current_page -= 1
             self.display_page(self.current_page)
+            save_last_viewed_page(conn, self.file_path, self.current_page)
 
-    def next_page(self):
+    def next_page(self, event):
         if self.current_page < self.total_pages - 1:
             self.current_page += 1
             self.display_page(self.current_page)
+            save_last_viewed_page(conn, self.file_path, self.current_page)
             
     def zoom_in(self):
         if self.pdf_document:
             self.zoom_factor *= 1.25  # Increase zoom
             self.display_page(self.current_page)
-
+    
     def zoom_out(self):
         if self.pdf_document:
             self.zoom_factor *= 0.8  # Decrease zoom
             self.display_page(self.current_page)
+    	
+#    def save_current_page(self, page_number):
+#        with open('last_viewed_page.txt', 'w') as file:
+#            file.write(str(page_number))
+#    
+#    def load_last_viewed_page(self):
+#        try:
+#            with open('last_viewed_page.txt', 'r') as file:
+#                return int(file.read().strip())
+#        except (FileNotFoundError, ValueError):
+#            return 0
 
     def main(self):
         self.mainloop()
