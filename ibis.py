@@ -23,8 +23,6 @@ class PDFViewer(tk.Tk):
         button_frame.pack(side="left", anchor='s')
         button_frame2 = tk.Frame(self, bg='darkblue')
         button_frame2.pack(side="right", anchor='se')
-        #button_frame3 = tk.Frame(self, bg='darkblue')
-        #button_frame3.pack(side="right", pady=50, anchor='se')
         self.config(menu=self.menu)
         self.file_menu = tk.Menu(self.menu, tearoff=0, bg='darkblue', fg='yellow')
         self.menu.add_cascade(label="File", menu=self.file_menu)
@@ -114,8 +112,6 @@ class PDFViewer(tk.Tk):
         self.bind('<KeyPress>', self.on_key_press)
         self.canvas.focus_set()  # The canvas must have focus to receive key events
         
-        #self.setup_page_selector()
-        
 
         # Variables for PDF handling
         self.pdf_document = None
@@ -200,17 +196,6 @@ class PDFViewer(tk.Tk):
     def scroll_right(self):
         self.canvas.xview_scroll(1, 'units')
             
-    #def setup_page_selector(self):
-    #    self.button_frame_sel = tk.Frame(button_frame2, bg='darkblue')
-    #    self.button_frame_sel.pack(side="top", anchor="n")
-    #    self.page_selector_label = tk.Label(button_frame_sel, text="Go to page:", bg='darkblue', fg='yellow')
-    #    self.page_selector_label.pack(side="left", anchor="ne")
-	#	
-    #    self.page_selector_entry = tk.Entry(button_frame_sel, width=5)
-    #    self.page_selector_entry.pack(side="left", anchor="ne")
-	#	
-    #    self.go_button = tk.Button(button_frame_sel, text="Go", bg='darkblue', fg='yellow', command=self.go_to_page)
-    #    self.go_button.pack(side="left", anchor="ne")
 
     def go_to_page(self):
         page_number = int(self.page_selector_entry.get()) - 1  # assuming pages start at 0 internally
