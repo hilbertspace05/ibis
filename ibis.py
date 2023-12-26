@@ -3,6 +3,7 @@ from tkinter import filedialog
 import fitz  # PyMuPDF
 from PIL import Image, ImageTk
 from database import create_connection, create_table, save_last_viewed_page, get_last_viewed_page
+from arrows import *
 
 database = "book_database.db"
 conn = create_connection(database)
@@ -20,6 +21,10 @@ class PDFViewer(tk.Tk):
         self.configure(bg='darkblue')
         button_frame = tk.Frame(self, bg='darkblue')
         button_frame.pack(side="left", anchor='s')
+        button_frame2 = tk.Frame(self, bg='darkblue')
+        button_frame2.pack(side="right", anchor='se')
+        #button_frame3 = tk.Frame(self, bg='darkblue')
+        #button_frame3.pack(side="right", pady=50, anchor='se')
         self.config(menu=self.menu)
         self.file_menu = tk.Menu(self.menu, tearoff=0, bg='darkblue', fg='yellow')
         self.menu.add_cascade(label="File", menu=self.file_menu)
@@ -32,8 +37,19 @@ class PDFViewer(tk.Tk):
         
         # Zoom factor
         self.zoom_factor = 1.0
+        
+        self.button_frame_sel = tk.Frame(button_frame2, bg='darkblue')
+        self.button_frame_sel.pack(side="top", pady=20, anchor="n")
+        self.page_selector_label = tk.Label(self.button_frame_sel, text="Go to page:", bg='darkblue', fg='yellow')
+        self.page_selector_label.pack(side="left", anchor="ne")
+		
+        self.page_selector_entry = tk.Entry(self.button_frame_sel, width=5)
+        self.page_selector_entry.pack(side="left", anchor="ne")
+		
+        self.go_button = tk.Button(self.button_frame_sel, text="Go", bg='darkblue', fg='yellow', command=self.go_to_page)
+        self.go_button.pack(side="left", anchor="ne")
 
-        # Zoom buttons
+        # zoom buttons
         zin_object = tk.Canvas(button_frame, width=50, height=50, bg='darkblue', highlightthickness=0)
         zin_object.pack(side="top")
         zoom_in_button = zin_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
@@ -48,6 +64,45 @@ class PDFViewer(tk.Tk):
         zoom_out_button2 = zout_object.create_line(13, 25, 38, 25, fill='yellow', width=3)  # Horizontal line
         zout_object.tag_bind(zoom_out_button, '<ButtonPress-1>', lambda x: self.zoom_out_but())
         zout_object.tag_bind(zoom_out_button2, '<ButtonPress-1>', lambda x: self.zoom_out_but())
+        
+        
+        # moving pdf buttons
+        up_object = tk.Canvas(button_frame2, width=50, height=50, bg='darkblue', highlightthickness=0)
+        up_object.pack(side="top")
+        uparrowp, upts, upte = up_arrow()
+        up_button = up_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
+        up_button2 = up_object.create_polygon(uparrowp, fill='yellow')
+        up_button3 =up_object.create_line(upts, upte, fill='yellow', width=2)
+        up_object.tag_bind(up_button, '<ButtonPress-1>', lambda x: self.scroll_up())
+        up_object.tag_bind(up_button2, '<ButtonPress-1>', lambda x: self.scroll_up())
+        up_object.tag_bind(up_button3, '<ButtonPress-1>', lambda x: self.scroll_up())
+        left_object = tk.Canvas(button_frame2, width=50, height=50, bg='darkblue', highlightthickness=0)
+        left_object.pack(side="left")
+        leftarrowp, leftts, leftte = left_arrow()
+        left_button = left_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
+        left_button2 = left_object.create_polygon(leftarrowp, fill='yellow')
+        left_button3 = left_object.create_line(leftts, leftte, fill='yellow', width=2)
+        left_object.tag_bind(left_button, '<ButtonPress-1>', lambda x: self.scroll_left())
+        left_object.tag_bind(left_button2, '<ButtonPress-1>', lambda x: self.scroll_left())
+        left_object.tag_bind(left_button3, '<ButtonPress-1>', lambda x: self.scroll_left())
+        down_object = tk.Canvas(button_frame2, width=50, height=50, bg='darkblue', highlightthickness=0)
+        down_object.pack(side="left")
+        downarrowp, downts, downte = down_arrow()
+        down_button = down_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
+        down_button2 = down_object.create_polygon(downarrowp, fill='yellow')
+        down_button3 = down_object.create_line(downts, downte, fill='yellow', width=2)
+        down_object.tag_bind(down_button, '<ButtonPress-1>', lambda x: self.scroll_down())
+        down_object.tag_bind(down_button2, '<ButtonPress-1>', lambda x: self.scroll_down())
+        down_object.tag_bind(down_button3, '<ButtonPress-1>', lambda x: self.scroll_down())
+        right_object = tk.Canvas(button_frame2, width=50, height=50, bg='darkblue', highlightthickness=0)
+        right_object.pack(side="right")
+        rightarrowp, rightts, rightte = right_arrow()
+        right_button = right_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
+        right_button2 = right_object.create_polygon(rightarrowp, fill='yellow')
+        right_button3 = right_object.create_line(rightts, rightte, fill='yellow', width=2)
+        right_object.tag_bind(right_button, '<ButtonPress-1>', lambda x: self.scroll_right())
+        right_object.tag_bind(right_button2, '<ButtonPress-1>', lambda x: self.scroll_right())
+        right_object.tag_bind(right_button3, '<ButtonPress-1>', lambda x: self.scroll_right())
 
 
 
@@ -56,19 +111,10 @@ class PDFViewer(tk.Tk):
         self.canvas.pack(side="left", fill="both", expand=True)
         
         
-        self.canvas_scrollbar_vertical = tk.Scrollbar(self, orient="vertical", bg='darkblue', troughcolor='darkblue', command=self.canvas.yview)
-        self.canvas_scrollbar_vertical.pack(side="right", fill="y")
-        
-        self.canvas_scrollbar_horizontal = tk.Scrollbar(self, orient="horizontal", bg='darkblue', troughcolor='darkblue', command=self.canvas.xview)
-        self.canvas_scrollbar_horizontal.pack(side="bottom", fill="x")
-
-        self.canvas.configure(yscrollcommand=self.canvas_scrollbar_vertical.set)
-        self.canvas.configure(xscrollcommand=self.canvas_scrollbar_horizontal.set)
-        
         self.bind('<KeyPress>', self.on_key_press)
         self.canvas.focus_set()  # The canvas must have focus to receive key events
         
-        self.setup_page_selector()
+        #self.setup_page_selector()
         
 
         # Variables for PDF handling
@@ -142,17 +188,29 @@ class PDFViewer(tk.Tk):
         elif event.keysym == 'period':
             self.canvas.xview_scroll(1, 'units')
             
-    def setup_page_selector(self):
-        self.button_frame_sel = tk.Frame(self, bg='darkblue')
-        self.button_frame_sel.pack(side="top")
-        self.page_selector_label = tk.Label(self.button_frame_sel, text="Go to page:", bg='darkblue', fg='yellow')
-        self.page_selector_label.pack(side="left")
-
-        self.page_selector_entry = tk.Entry(self.button_frame_sel, width=5)
-        self.page_selector_entry.pack(side="left")
-
-        self.go_button = tk.Button(self.button_frame_sel, text="Go", bg='darkblue', fg='yellow', command=self.go_to_page)
-        self.go_button.pack(side="left")
+    def scroll_up(self):
+        self.canvas.yview_scroll(-1, 'units')
+		
+    def scroll_down(self):
+        self.canvas.yview_scroll(1, 'units')
+		
+    def scroll_left(self):
+        self.canvas.xview_scroll(-1, 'units')
+		
+    def scroll_right(self):
+        self.canvas.xview_scroll(1, 'units')
+            
+    #def setup_page_selector(self):
+    #    self.button_frame_sel = tk.Frame(button_frame2, bg='darkblue')
+    #    self.button_frame_sel.pack(side="top", anchor="n")
+    #    self.page_selector_label = tk.Label(button_frame_sel, text="Go to page:", bg='darkblue', fg='yellow')
+    #    self.page_selector_label.pack(side="left", anchor="ne")
+	#	
+    #    self.page_selector_entry = tk.Entry(button_frame_sel, width=5)
+    #    self.page_selector_entry.pack(side="left", anchor="ne")
+	#	
+    #    self.go_button = tk.Button(button_frame_sel, text="Go", bg='darkblue', fg='yellow', command=self.go_to_page)
+    #    self.go_button.pack(side="left", anchor="ne")
 
     def go_to_page(self):
         page_number = int(self.page_selector_entry.get()) - 1  # assuming pages start at 0 internally
