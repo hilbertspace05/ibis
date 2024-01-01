@@ -1,0 +1,57 @@
+import tkinter as tk
+
+def create_buttons(pdf_operations, button_frame, button_frame2, up_arrow, left_arrow, down_arrow, right_arrow):
+    # zoom buttons
+        zin_object = tk.Canvas(button_frame, width=50, height=50, bg='darkblue', highlightthickness=0)
+        zin_object.pack(side="top")
+        zoom_in_button = zin_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
+        zoom_in_button2 = zin_object.create_line(25, 13, 25, 38, fill='yellow', width=3)  # Vertical line
+        zoom_in_button3 = zin_object.create_line(13, 25, 38, 25, fill='yellow', width=3)  # Horizontal line
+        zin_object.tag_bind(zoom_in_button, '<ButtonPress-1>', lambda x: pdf_operations.zoom_in_but())
+        zin_object.tag_bind(zoom_in_button2, '<ButtonPress-1>', lambda x: pdf_operations.zoom_in_but())
+        zin_object.tag_bind(zoom_in_button3, '<ButtonPress-1>', lambda x: pdf_operations.zoom_in_but())
+        zout_object = tk.Canvas(button_frame, width=50, height=50, bg='darkblue', highlightthickness=0)
+        zout_object.pack(side="top")
+        zoom_out_button = zout_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
+        zoom_out_button2 = zout_object.create_line(13, 25, 38, 25, fill='yellow', width=3)  # Horizontal line
+        zout_object.tag_bind(zoom_out_button, '<ButtonPress-1>', lambda x: pdf_operations.zoom_out_but())
+        zout_object.tag_bind(zoom_out_button2, '<ButtonPress-1>', lambda x: pdf_operations.zoom_out_but())
+        
+        
+        # moving pdf buttons
+        up_object = tk.Canvas(button_frame2, width=50, height=50, bg='darkblue', highlightthickness=0)
+        up_object.pack(side="top")
+        uparrowp, upts, upte = up_arrow()
+        up_button = up_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
+        up_button2 = up_object.create_polygon(uparrowp, fill='yellow')
+        up_button3 =up_object.create_line(upts, upte, fill='yellow', width=2)
+        up_object.tag_bind(up_button, '<ButtonPress-1>', lambda x: pdf_operations.scroll_up())
+        up_object.tag_bind(up_button2, '<ButtonPress-1>', lambda x: pdf_operations.scroll_up())
+        up_object.tag_bind(up_button3, '<ButtonPress-1>', lambda x: pdf_operations.scroll_up())
+        left_object = tk.Canvas(button_frame2, width=50, height=50, bg='darkblue', highlightthickness=0)
+        left_object.pack(side="left")
+        leftarrowp, leftts, leftte = left_arrow()
+        left_button = left_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
+        left_button2 = left_object.create_polygon(leftarrowp, fill='yellow')
+        left_button3 = left_object.create_line(leftts, leftte, fill='yellow', width=2)
+        left_object.tag_bind(left_button, '<ButtonPress-1>', lambda x: pdf_operations.scroll_left())
+        left_object.tag_bind(left_button2, '<ButtonPress-1>', lambda x: pdf_operations.scroll_left())
+        left_object.tag_bind(left_button3, '<ButtonPress-1>', lambda x: pdf_operations.scroll_left())
+        down_object = tk.Canvas(button_frame2, width=50, height=50, bg='darkblue', highlightthickness=0)
+        down_object.pack(side="left")
+        downarrowp, downts, downte = down_arrow()
+        down_button = down_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
+        down_button2 = down_object.create_polygon(downarrowp, fill='yellow')
+        down_button3 = down_object.create_line(downts, downte, fill='yellow', width=2)
+        down_object.tag_bind(down_button, '<ButtonPress-1>', lambda x: pdf_operations.scroll_down())
+        down_object.tag_bind(down_button2, '<ButtonPress-1>', lambda x: pdf_operations.scroll_down())
+        down_object.tag_bind(down_button3, '<ButtonPress-1>', lambda x: pdf_operations.scroll_down())
+        right_object = tk.Canvas(button_frame2, width=50, height=50, bg='darkblue', highlightthickness=0)
+        right_object.pack(side="right")
+        rightarrowp, rightts, rightte = right_arrow()
+        right_button = right_object.create_oval(5, 5, 45, 45, fill='darkblue', outline='yellow', width=2)
+        right_button2 = right_object.create_polygon(rightarrowp, fill='yellow')
+        right_button3 = right_object.create_line(rightts, rightte, fill='yellow', width=2)
+        right_object.tag_bind(right_button, '<ButtonPress-1>', lambda x: pdf_operations.scroll_right())
+        right_object.tag_bind(right_button2, '<ButtonPress-1>', lambda x: pdf_operations.scroll_right())
+        right_object.tag_bind(right_button3, '<ButtonPress-1>', lambda x: pdf_operations.scroll_right())
